@@ -2,7 +2,6 @@ package home.task;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 public class ElevatorSync implements Runnable {
@@ -43,31 +42,40 @@ public class ElevatorSync implements Runnable {
     public void calcFloorSequence() {
         // Get data from digit panel
         List<Integer> selectedFloors = digitPanel.getSelectedFloors();
-
         // Define elevator next floor (from floor sequence)
+
+        Integer nextFloor;
+        try {
+            nextFloor = floorSequence.get(0);
+        } catch (IndexOutOfBoundsException e) {
+            nextFloor = currentFloor;
+        }
 
         // Based on elevator's next floor and direction build correct floor sequence
         switch (direction) {
 
             case UP -> {
+                Collections.sort(selectedFloors);
                 for (Integer selectedFloor : selectedFloors) {
                     if ((selectedFloor > currentFloor) && (!floorSequence.contains(selectedFloor))) {
-                        floorSequence.add(selectedFloor);
+                        if ((selectedFloor > nextFloor)) {
+                            floorSequence.add(selectedFloor);
+                        } else floorSequence.add(0, selectedFloor);
                     }
                 }
-                Collections.sort(floorSequence);
             }
 
             case DOWN -> {
+                Collections.sort(selectedFloors, Collections.reverseOrder());
                 for (Integer selectedFloor : selectedFloors) {
                     if ((selectedFloor < currentFloor) && (!floorSequence.contains(selectedFloor))) {
-                        floorSequence.add(selectedFloor);
+                        if ((selectedFloor < nextFloor)) {
+                            floorSequence.add(selectedFloor);
+                        } else floorSequence.add(0, selectedFloor);
                     }
                 }
-                Collections.sort(floorSequence, Collections.reverseOrder());
             }
         }
-
         digitPanel.removeFloor(floorSequence.stream().toList());
         digitPanel.removeFloor(currentFloor);
 
@@ -132,4 +140,3 @@ public class ElevatorSync implements Runnable {
         System.out.println();
     }
 }
-
